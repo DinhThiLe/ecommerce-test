@@ -1,1 +1,14 @@
-/target/
+# Maven
+target/
+
+# TestNG reports
+test-output/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
