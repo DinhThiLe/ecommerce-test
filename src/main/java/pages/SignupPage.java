@@ -43,7 +43,7 @@ public class SignupPage extends BasePage {
     private By btnCreate = By.cssSelector("[data-qa='create-account']");
 
     // ===== VERIFY =====
-    private By lblSuccess = By.xpath("//h2[contains(text(),'ACCOUNT CREATED!')]");
+    private By lblSuccess = By.xpath("//h2[@data-qa='account-created']");
     private By lblEmailExists = By.xpath("//p[contains(text(),'Email Address already exist')]");
 
     // ===== ACTION STEP 1 =====
@@ -87,13 +87,18 @@ public class SignupPage extends BasePage {
         sendKeys(txtMobile, "0123456789");
 
         click(btnCreate);
+   
     }
 
     // ===== VERIFY =====
     public boolean isSuccess() {
         try {
             waitForElementVisible(lblSuccess);
-            return true;
+
+            // DEBUG (có thể giữ hoặc xóa sau)
+            System.out.println("URL: " + driver.getCurrentUrl());
+
+            return driver.getCurrentUrl().contains("account_created");
         } catch (Exception e) {
             return false;
         }

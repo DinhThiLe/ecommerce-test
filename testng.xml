@@ -1,0 +1,13 @@
+<suite name="Regression Suite">
+    <test name="Register Tests">
+        <classes>
+            <class name="tests.RegisterTest"/>
+        </classes>
+    </test>
+
+    <test name="Login Tests">
+        <classes>
+            <class name="tests.LoginTest"/>
+        </classes>
+    </test>
+</suite>
