@@ -1,8 +1,6 @@
 package base;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
@@ -14,7 +12,7 @@ public class BasePage {
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     // ===== WAIT =====
@@ -26,9 +24,37 @@ public class BasePage {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
+    public WebElement waitForElementPresent(By locator) {
+        return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+
+    // ===== SCROLL =====
+    public void scrollToElement(By locator) {
+        WebElement element = waitForElementPresent(locator);
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].scrollIntoView(true);", element);
+    }
+
+    // ===== SAFE CLICK (🔥 QUAN TRỌNG NHẤT) =====
+    public void safeClick(By locator) {
+        try {
+            waitForElementClickable(locator).click();
+        } catch (Exception e) {
+            WebElement element = waitForElementPresent(locator);
+
+            // scroll tới element trước
+            ((JavascriptExecutor) driver)
+                    .executeScript("arguments[0].scrollIntoView(true);", element);
+
+            // click bằng JS (né iframe ads)
+            ((JavascriptExecutor) driver)
+                    .executeScript("arguments[0].click();", element);
+        }
+    }
+
     // ===== ACTIONS =====
     public void click(By locator) {
-        waitForElementClickable(locator).click();
+        safeClick(locator); // luôn dùng safeClick
     }
 
     public void sendKeys(By locator, String text) {
@@ -37,17 +63,15 @@ public class BasePage {
         element.sendKeys(text);
     }
 
-    // ===== DROPDOWN (FIX LỖI Ở ĐÂY) =====
+    // ===== DROPDOWN =====
     public void selectByVisibleText(By locator, String text) {
         WebElement element = waitForElementVisible(locator);
-        Select select = new Select(element);
-        select.selectByVisibleText(text);
+        new Select(element).selectByVisibleText(text);
     }
 
     public void selectByValue(By locator, String value) {
         WebElement element = waitForElementVisible(locator);
-        Select select = new Select(element);
-        select.selectByValue(value);
+        new Select(element).selectByValue(value);
     }
 
     // ===== GET TEXT =====
