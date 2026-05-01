@@ -33,7 +33,7 @@ public class RegisterTest extends BaseTest {
         );
      // DEBUG
         System.out.println("URL: " + driver.getCurrentUrl());
-        System.out.println(driver.getPageSource());
+       
 
         Assert.assertTrue(signup.isSuccess(), "Đăng ký thành công!");
     }

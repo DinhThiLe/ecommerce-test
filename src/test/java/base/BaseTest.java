@@ -14,17 +14,17 @@ public class BaseTest {
 
     @BeforeMethod
     public void setUp() {
+
+        // ✅ chỉ cần gọi DriverFactory (đã xử lý CI bên trong)
         driver = DriverFactory.initDriver("chrome");
 
-        
-        driver.manage().window().maximize();
+        // ❌ KHÔNG dùng implicit wait (tránh conflict)
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
 
-        // implicit wait 
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        // ✅ explicit wait
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        // explicit wait 
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
+        // mở trang
         driver.get("https://automationexercise.com");
     }
 

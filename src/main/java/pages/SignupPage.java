@@ -1,8 +1,11 @@
 package pages;
 
 import base.BasePage;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class SignupPage extends BasePage {
 
@@ -46,11 +49,31 @@ public class SignupPage extends BasePage {
     private By lblSuccess = By.xpath("//h2[@data-qa='account-created']");
     private By lblEmailExists = By.xpath("//p[contains(text(),'Email Address already exist')]");
 
+    // ===== HELPER: CLICK CHỐNG ADS (QUAN TRỌNG NHẤT) =====
+    private void safeClick(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+
+        // Scroll tới element
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+
+        // Wait clickable (nếu bị che sẽ retry)
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+        try {
+            element.click(); // thử click thường trước
+        } catch (Exception e) {
+            // nếu bị ads che → dùng JS click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
+    }
+
     // ===== ACTION STEP 1 =====
     public void signup(String name, String email) {
         sendKeys(txtName, name);
         sendKeys(txtEmail, email);
-        click(btnSignup);
+        safeClick(btnSignup);
     }
 
     // ===== ACTION STEP 2 =====
@@ -61,7 +84,7 @@ public class SignupPage extends BasePage {
             String address
     ) {
         // Title
-        click(rdMr);
+        safeClick(rdMr);
 
         // Account
         sendKeys(txtPassword, password);
@@ -69,8 +92,8 @@ public class SignupPage extends BasePage {
         selectByVisibleText(selectMonth, "January");
         selectByVisibleText(selectYear, "2000");
 
-        click(chkNewsletter);
-        click(chkOffers);
+        safeClick(chkNewsletter);
+        safeClick(chkOffers);
 
         // Address
         sendKeys(txtFirstName, firstName);
@@ -86,18 +109,14 @@ public class SignupPage extends BasePage {
         sendKeys(txtZip, "700000");
         sendKeys(txtMobile, "0123456789");
 
-        click(btnCreate);
-   
+        // 🔥 FIX CHÍNH: nút này bị ads che → dùng safeClick
+        safeClick(btnCreate);
     }
 
     // ===== VERIFY =====
     public boolean isSuccess() {
         try {
             waitForElementVisible(lblSuccess);
-
-            // DEBUG (có thể giữ hoặc xóa sau)
-            System.out.println("URL: " + driver.getCurrentUrl());
-
             return driver.getCurrentUrl().contains("account_created");
         } catch (Exception e) {
             return false;
