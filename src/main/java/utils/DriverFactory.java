@@ -8,12 +8,14 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 public class DriverFactory {
 
     public static WebDriver initDriver(String browser) {
-        WebDriver driver;
 
         if (browser.equalsIgnoreCase("chrome")) {
 
-        	WebDriverManager.chromedriver().clearDriverCache().setup();
-
+            // ✅ FIX CỨNG VERSION (tránh mismatch trên CI)
+        	WebDriverManager.chromedriver()
+            .driverVersion("147.0.0")
+            .setup();
+        	
             ChromeOptions options = new ChromeOptions();
 
             // 🔥 detect môi trường CI
@@ -30,7 +32,7 @@ public class DriverFactory {
                 options.addArguments("--start-maximized");
             }
 
-            // 🔽 common options (cả local + CI)
+            // 🔽 common options (áp dụng cho mọi môi trường)
             options.addArguments("--disable-notifications");
             options.addArguments("--disable-infobars");
             options.addArguments("--disable-extensions");
@@ -38,12 +40,9 @@ public class DriverFactory {
             options.addArguments("--disable-geolocation");
             options.addArguments("--disable-blink-features=AutomationControlled");
 
-            driver = new ChromeDriver(options);
-
-        } else {
-            throw new RuntimeException("Browser not supported");
+            return new ChromeDriver(options);
         }
 
-        return driver;
+        throw new RuntimeException("Browser not supported: " + browser);
     }
 }
